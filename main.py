@@ -22,8 +22,23 @@ ENTRY = (
 
 OUTPUT_PATH = "/output/entry.txt"
 
+# Competition cap: the full entry (To: line + message) must stay short.
+MAX_ENTRY_CHARS = 200
+
+
+def validate_entry(entry: str) -> None:
+    """Guard: never write an empty or over-limit entry."""
+    if not entry.strip():
+        raise ValueError("entry is empty")
+    lines = entry.split("\n")
+    if len(lines) != 2 or not lines[0].startswith("To: ") or not lines[1].strip():
+        raise ValueError("entry must be a 'To: ...' line plus a non-empty message")
+    if len(entry) > MAX_ENTRY_CHARS:
+        raise ValueError(f"entry is {len(entry)} chars, over the {MAX_ENTRY_CHARS} limit")
+
 
 def main() -> None:
+    validate_entry(ENTRY)
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
         f.write(ENTRY)
